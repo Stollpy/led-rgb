@@ -7,11 +7,11 @@
 #define green_led 18
 #define blue_led 27
 
-void setupLed()
+void setup()
 {
-    gpioSetPWMrange(red_led, 100);
-    gpioSetPWMrange(green_led, 100);
-    gpioSetPWMrange(blue_led, 100);
+    gpioSetPWMrange(red_led, 255);
+    gpioSetPWMrange(green_led, 255);
+    gpioSetPWMrange(blue_led, 255);
 }
 
 
@@ -22,25 +22,47 @@ void setColors(int red, int green, int blue)
   gpioPWM(blue_led, blue);
 }
 
+void increment(int led, int red, int green, int blue)
+{
+    usleep(50000);
+    setColors(red, green, blue);
+
+    for (int i = 0; i <= 255; ++i) {
+        gpioPWM(led, i);
+        usleep(50000);
+    }
+}
+void decrement(int led, int red, int green, int blue)
+{
+    usleep(50000);
+    setColors(red, green, blue);
+
+    for (int i = 255; i >= 0; --i) {
+        gpioPWM(led, i);
+        usleep(50000);
+    }
+}
+
 int main() {
     if (gpioInitialise() < 0) {
         fprintf(stderr, "pigpio initialisation failed\n");
         return 1;
     }
 
-   setupLed();
-
-    int r;
-    int g;
-    int b;
+   setup();
 
     while(1) {
-        r=rand()%100;
-        g=rand()%100;
-        b=rand()%100;
-
-        setColors(r, g, b);
-        printf("r=%d, g=%d, b=%d \n",r,g,b);
-        usleep(200000);
+        fprintf(stderr, "increment green\n");
+        increment(green_led, 255, 0, 0);
+        fprintf(stderr, "decrement red\n");
+        decrement(red_led, 255, 255, 0);
+        fprintf(stderr, "increment blue\n");
+        increment(blue_led, 0, 255, 0);
+        fprintf(stderr, "decrement green\n");
+        decrement(green_led, 0, 255, 255);
+        fprintf(stderr, "increment red\n");
+        increment(red_led, 0, 0, 255);
+        fprintf(stderr, "decrement blue\n");
+        decrement(blue_led, 255, 0, 255);
     }
 }
